@@ -20,8 +20,8 @@ export const initialSessionSetting: SessionSetting = {
 };
 
 export const initialOpenaiAttribute: OpenAIAttribute = {
-  baseURL: "",
-  apiKey: "",
+  baseURL: "http://chat.y-droid.com:8080/v1",
+  apiKey: "abc",
   defaultModels: ['gpt-3.5-turbo', 'gpt-4', 'gpt-4-turbo', 'gpt-4o'],
   customModels: []
 };

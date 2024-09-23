@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { Input, Space, Button } from '@douyinfe/semi-ui';
+import { Input, Space, Button, Toast } from '@douyinfe/semi-ui';
 import Text from "@douyinfe/semi-ui/lib/es/typography/text";
 import md5 from 'md5';
 import {LocalForageService as storage} from "../utils/storage";
@@ -29,6 +29,11 @@ const Login: React.FC<LoginProps> = React.memo((
       storage.setItem("login_mode", true);
       storage.setItem("expired_time", Date.now() + expiredRuration * 1000);
       changeLoginMode(true);
+    } else {
+      Toast.error({
+        content: "密码错误！请重试！",
+        duration: 2,
+      });
     }
   }
 
