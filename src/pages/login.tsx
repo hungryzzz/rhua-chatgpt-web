@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import {useNavigate} from "react-router-dom";
 import { Input, Space, Button, Toast } from '@douyinfe/semi-ui';
 import Text from "@douyinfe/semi-ui/lib/es/typography/text";
 import md5 from 'md5';
@@ -21,6 +22,8 @@ const Login: React.FC<LoginProps> = React.memo((
     setPasswd(value);
   }
 
+  const navigate = useNavigate();
+
   const clickBtn = () => {
     // curidemo123
     // 2acd40c45611ae5fb00ca0c25c66068c
@@ -29,6 +32,7 @@ const Login: React.FC<LoginProps> = React.memo((
       storage.setItem("login_mode", true);
       storage.setItem("expired_time", Date.now() + expiredRuration * 1000);
       changeLoginMode(true);
+      navigate("/comment");
     } else {
       Toast.error({
         content: "密码错误！请重试！",

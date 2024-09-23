@@ -1,12 +1,12 @@
 import React, {useState} from "react";
 import {ChatSession} from "../interface/message";
-import {Button, Collapsible, Dropdown, Layout, List, Modal, Tooltip, Typography} from "@douyinfe/semi-ui";
+import {Button, Collapsible, Dropdown, Layout, List, Modal, Toast, Tooltip, Typography} from "@douyinfe/semi-ui";
 import {
   IconChevronDown,
   IconChevronUp,
   IconClose,
   IconHash, IconMoon,
-  IconPlus, IconSettingStroked, IconSidebar, IconSun
+  IconPlus, IconSettingStroked, IconSidebar, IconSun, IconExit,
 } from "@douyinfe/semi-icons";
 import {SessionSetting} from "../interface/setting";
 import {LocalForageService as storage} from "../utils/storage";
@@ -66,6 +66,13 @@ export const SessionBox: React.FC<SessionBoxProps> = React.memo((
     } else {
       jumpPage("/setting/model");
     }
+  }
+
+  const logout = () => {
+    storage.setItem("login_mode", false);
+    storage.setItem("expired_time", null);
+    Toast.success("登出成功！")
+    jumpPage("/login");
   }
 
   return (
@@ -200,6 +207,13 @@ export const SessionBox: React.FC<SessionBoxProps> = React.memo((
           aria-label="菜单"
           onClick={toSettingPage}
           children="菜单设置"
+        />
+        <Button
+          type="tertiary"
+          icon={<IconExit />}
+          aria-label="logout"
+          onClick={logout}
+          children="登出"
         />
       </Footer>
     </Sider>

@@ -59,6 +59,7 @@ function Index() {
           <Route key="setting-normal" path="normal" element={<NormalIndex />} />,
         ]} />
         <Route path="/comment" element={<CommentIndex />} />
+        <Route path="/login" element={<Login changeLoginMode={changeLoginMode} />} />
         <Route path="*" element={<NotFound />} />
       </Routes> :
       <Login changeLoginMode={changeLoginMode} />}
