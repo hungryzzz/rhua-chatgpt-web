@@ -57,15 +57,15 @@ function NormalIndex() {
       className="setting-form"
       onValueChange={sessionSettingChange}
     >
-      <Form.Section text={'用户'}>
+      {/* <Form.Section text={'用户'}>
         <Form.Input
           field="userName"
           label="用户名"
           placeholder="我"
         />
-      </Form.Section>
+      </Form.Section> */}
       <Form.Section text={'会话'}>
-        <Form.Select
+        {/* <Form.Select
           className="full-width"
           field='defaultModel'
           label="默认对话模型"
@@ -83,8 +83,8 @@ function NormalIndex() {
               />
             )
           }
-        </Form.Select>
-        <Form.Select
+        </Form.Select> */}
+        {/* <Form.Select
           className="full-width"
           field='defaultSummaryModel'
           label={{
@@ -105,8 +105,8 @@ function NormalIndex() {
               />
             )
           }
-        </Form.Select>
-        <Form.Select
+        </Form.Select> */}
+        {/* <Form.Select
           className="full-width"
           field='defaultVisionModel'
           label={{
@@ -127,7 +127,7 @@ function NormalIndex() {
               />
             )
           }
-        </Form.Select>
+        </Form.Select> */}
         <Form.RadioGroup
           field="defaultModelPrecision"
           label="默认模型精度"
@@ -150,7 +150,7 @@ function NormalIndex() {
             children="更精确"
           />
         </Form.RadioGroup>
-        <Form.Select
+        {/* <Form.Select
           className="full-width"
           field='defaultRoleId'
           label="默认角色"
@@ -166,8 +166,8 @@ function NormalIndex() {
               ))
             )
           }
-        </Form.Select>
-        <Form.Input
+        </Form.Select> */}
+        {/* <Form.Input
           field="defaultSystemMessage"
           label={{
             text: "默认系统消息",
@@ -175,7 +175,7 @@ function NormalIndex() {
           }}
           placeholder="为空则不添加系统消息"
           showClear={true}
-        />
+        /> */}
         <Form.InputNumber
           className="full-width"
           field="chatMaxMemory"

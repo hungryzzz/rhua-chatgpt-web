@@ -11,7 +11,7 @@ export const initialSessionSetting: SessionSetting = {
   defaultVisionModel: "gpt-4o",
   defaultModelPrecision: "creativity",
   defaultRoleId: "",
-  defaultSystemMessage: "",
+  defaultSystemMessage: "你现在是复旦大学SONIC实验室开发的大语言模型",
   chatMaxMemory: 4,
   chatMaxToken: 3000,
   chatSessionMaxNumber: 10,

@@ -60,12 +60,13 @@ export const SessionBox: React.FC<SessionBoxProps> = React.memo((
   }
 
   const toSettingPage = async () => {
-    const settingLastPath = await storage.getItem<string>("setting_last_path");
-    if (settingLastPath) {
-      jumpPage(settingLastPath);
-    } else {
-      jumpPage("/setting/model");
-    }
+    jumpPage("/setting/normal");
+    // const settingLastPath = await storage.getItem<string>("setting_last_path");
+    // if (settingLastPath) {
+    //   jumpPage(settingLastPath);
+    // } else {
+    //   jumpPage("/setting/normal");
+    // }
   }
 
   const logout = () => {
@@ -206,7 +207,7 @@ export const SessionBox: React.FC<SessionBoxProps> = React.memo((
           icon={<IconSettingStroked />}
           aria-label="菜单"
           onClick={toSettingPage}
-          children="菜单设置"
+          children="设置"
         />
         <Button
           type="tertiary"

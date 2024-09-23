@@ -995,7 +995,7 @@ function CommentIndex() {
             </div>
           </div>
           <div className="comment-send-bottom">
-            <Select
+            {/* <Select
               size="small"
               optionList={roleOptionProps}
               value={currentCommentSession?.config?.roleId ?? sessionSetting.defaultRoleId}
@@ -1006,8 +1006,8 @@ function CommentIndex() {
               clickToHide={true}
               onChange={(value) => changeSessionRole(typeof value === "string" ? value : "")}
             />
-            <Divider layout="vertical" margin='12px' style={{height: 16}}/>
-            {
+            <Divider layout="vertical" margin='12px' style={{height: 16}}/> */}
+            {/* {
               openaiAttribute && (
                 <Select
                   size="small"
@@ -1027,7 +1027,7 @@ function CommentIndex() {
                 </Select>
               )
             }
-            <Divider layout="vertical" margin='12px' style={{height: 16}}/>
+            <Divider layout="vertical" margin='12px' style={{height: 16}}/> */}
             <Select
               size="small"
               value={currentCommentSession?.config?.modelPrecision ?? sessionSetting.defaultModelPrecision}

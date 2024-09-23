@@ -17,7 +17,7 @@ function SettingIndex() {
   const navigate = useNavigate();
 
   const jumpPage = (event: RadioChangeEvent) => {
-    storage.setItem("setting_last_path", event.target.value);
+    // storage.setItem("setting_last_path", event.target.value);
     navigate(event.target.value);
   }
 
@@ -28,12 +28,12 @@ function SettingIndex() {
   const [title, setTitle] = useState<string>("");
   const pathToTitle: { [key: string]: string } = {
     '/setting/normal': '通用设置',
-    '/setting/role': '角色预设',
-    '/setting/model': '模型',
-    '/setting/plugin': '插件',
+    // '/setting/role': '角色预设',
+    // '/setting/model': '模型',
+    // '/setting/plugin': '插件',
   };
   useEffect(() => {
-    setTitle(pathToTitle[location.pathname] || "Setting");
+    setTitle(pathToTitle[location.pathname] || "设置");
   }, [location.pathname]);
 
   useEffect(() => {
@@ -49,12 +49,12 @@ function SettingIndex() {
   return (
     <Layout className="full-height">
       <Header data-tauri-drag-region className="setting-header">
-        <div data-tauri-drag-region className="setting-title">{title}</div>
-        <RadioGroup data-tauri-drag-region type='button' buttonSize='middle' defaultValue={location.pathname} onChange={jumpPage} aria-label="菜单">
-          <Radio value='/setting/model'><IconStarStroked size="large" /><br/>模型</Radio>
-          <Radio value='/setting/role'><IconUserCircleStroked size="large" /><br/>角色预设</Radio>
-          <Radio value='/setting/plugin'><IconGridStroked size="large" /><br/>插件</Radio>
-          <Radio value='/setting/normal'><IconSettingStroked size="large" /><br/>通用设置</Radio>
+        {/* <div data-tauri-drag-region className="setting-title">{title}</div> */}
+        <RadioGroup data-tauri-drag-region type='button' buttonSize='middle' defaultValue='/setting/normal' onChange={jumpPage} aria-label="菜单">
+          {/* <Radio value='/setting/model'><IconStarStroked size="large" /><br/>模型</Radio> */}
+          {/* <Radio value='/setting/role'><IconUserCircleStroked size="large" /><br/>角色预设</Radio> */}
+          {/* <Radio value='/setting/plugin'><IconGridStroked size="large" /><br/>插件</Radio> */}
+          <Radio value='/setting/normal'><IconSettingStroked size="large" /><br/>设置</Radio>
         </RadioGroup>
         <Tooltip content={'返回对话界面'}>
           <Button

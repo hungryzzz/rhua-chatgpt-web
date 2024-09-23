@@ -53,9 +53,9 @@ function Index() {
       {loginMode ? <Routes>
         <Route path="/" element={<Navigate to="/comment" />} />
         <Route path="/setting" element={<SettingIndex />} children={[
-          <Route key="setting-role" path="role" element={<RoleIndex />} />,
-          <Route key="setting-model" path="model" element={<ModelIndex />} />,
-          <Route key="setting-plugin" path="plugin" element={<PluginIndex />} />,
+          // <Route key="setting-role" path="role" element={<RoleIndex />} />,
+          // <Route key="setting-model" path="model" element={<ModelIndex />} />,
+          // <Route key="setting-plugin" path="plugin" element={<PluginIndex />} />,
           <Route key="setting-normal" path="normal" element={<NormalIndex />} />,
         ]} />
         <Route path="/comment" element={<CommentIndex />} />
