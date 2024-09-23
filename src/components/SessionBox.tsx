@@ -85,7 +85,7 @@ export const SessionBox: React.FC<SessionBoxProps> = React.memo((
         <Text
           data-tauri-drag-region
           className="comment-session-title"
-          children="若华"
+          children="BZ-Chat"
         />
         <Text
           data-tauri-drag-region

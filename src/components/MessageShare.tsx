@@ -217,7 +217,7 @@ export const MessageShare: React.FC<MessageShareProps> = React.memo((
             <div ref={messageShareRef}>
               <div className="message-share-header">
                 <div className="message-share-header-memo">
-                  <Text className="t1">若华</Text>
+                  <Text className="t1">BZ-Chat</Text>
                   <Text className="t2">构建你的专属人工智能助手</Text>
                 </div>
                 <div className="message-share-header-memo">

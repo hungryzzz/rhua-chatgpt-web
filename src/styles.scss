@@ -644,6 +644,19 @@ a {
   }
 }
 
+.login-div-block {
+  width: 18%;
+  position: relative;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  .t1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--semi-color-primary);
+  }
+}
+
 
 
 .semi-spin-hidden > .semi-spin-children {
