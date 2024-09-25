@@ -12,6 +12,7 @@ export const initialSessionSetting: SessionSetting = {
   defaultModelPrecision: "creativity",
   defaultRoleId: "",
   defaultSystemMessage: "你现在是复旦大学SONIC实验室开发的大语言模型",
+  // defaultSystemMessage: "",
   chatMaxMemory: 4,
   chatMaxToken: 3000,
   chatSessionMaxNumber: 10,
@@ -22,6 +23,8 @@ export const initialSessionSetting: SessionSetting = {
 export const initialOpenaiAttribute: OpenAIAttribute = {
   baseURL: "https://chat.y-droid.com/llm/",
   apiKey: "4families",
+  // baseURL: "",
+  // apiKey: "",
   defaultModels: ['gpt-3.5-turbo', 'gpt-4', 'gpt-4-turbo', 'gpt-4o'],
   customModels: []
 };
