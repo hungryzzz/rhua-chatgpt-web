@@ -29,12 +29,32 @@ class PluginExecutor {
   }
 
   public async execute(inputMessage: ChatMessage, historyChatList: ChatMessage[], sessionConfig: ChatSessionConfig | undefined, sessionSetting: SessionSetting, handler: BaseCallbackHandler) {
+    const isTable=(historyChatList:ChatMessage[],inputMessage:ChatMessage)=>{
+      for(let i=0;i<historyChatList.length;i++){
+        if(historyChatList[i]&&historyChatList[i].additions){
+          const additions=historyChatList[i].additions??[]
+          for (let j = 0; j < additions.length; j++) {
+            if(additions[j]?.type==='table'){
+              return true
+            }
+          }
+        }
+      }
+      if(inputMessage.additions){
+        for (let i = 0; i < inputMessage.additions.length; i++) {
+          if(inputMessage.additions[i].type==='table'){
+            return true
+          }
+        }}
+      return false
+    }
+    const isStreaming=isTable(historyChatList,inputMessage)?false:true
     const model = new ChatOpenAI({
       temperature: getModelTemperatureByPrecision(sessionConfig?.modelPrecision ?? sessionSetting.defaultModelPrecision),
       topP: getModelTopPByPrecision(sessionConfig?.modelPrecision ?? sessionSetting.defaultModelPrecision),
       modelName: this.modelName,
       openAIApiKey: this.apikey,
-      streaming: true,
+      streaming: isStreaming,
       maxTokens: sessionSetting.chatMaxToken
     }, {
       baseURL: this.baseURL
@@ -100,7 +120,6 @@ class PluginExecutor {
         }));
       }
     }
-
     const chatInput = new HumanMessage({
       content: MessageUtil.covertChatContent(inputMessage)
     });
@@ -129,7 +148,7 @@ class PluginExecutor {
 
     if (tools.length === 0) {
       const prompt = ChatPromptTemplate.fromMessages(promptMessages);
-      const chain = prompt.pipe(model);
+      const chain = prompt.pipe(model);    
       await chain.invoke({
         chat_history: chatHistory,
         chat_input: chatInput

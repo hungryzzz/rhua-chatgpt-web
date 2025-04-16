@@ -1,17 +1,18 @@
 import { Layout } from "@douyinfe/semi-ui";
 import {Navigate, Route, Routes} from "react-router-dom";
-import CommentIndex from "./pages/comment/Index";
+// import CommentIndex from "./pages/comment/Index";
 import SettingIndex from "./pages/setting/Index";
-import RoleIndex from "./pages/setting/RoleIndex";
-import ModelIndex from "./pages/setting/ModelIndex";
-import PluginIndex from "./pages/setting/PluginIndex";
+// import RoleIndex from "./pages/setting/RoleIndex";
+// import ModelIndex from "./pages/setting/ModelIndex";
+// import PluginIndex from "./pages/setting/PluginIndex";
 import NormalIndex from "./pages/setting/NormalIndex";
 import NotFound from "./pages/404";
 import Login from "./pages/login";
 import {invoke} from "@tauri-apps/api/tauri";
-import {useEffect, useState} from "react";
+import React,{useEffect, useState} from "react";
 import {LocalForageService as storage} from "./utils/storage";
-
+import CommentIndex from "./pages/comment/Index";
+// const CommentIndex = React.lazy(() => import('./pages/comment/Index'));
 function Index() {
   const [runEnvType, setRunEnvType] = useState<string>("web");
   const [loginMode, setLoginMode] = useState<boolean>(false);
@@ -22,7 +23,6 @@ function Index() {
   }
 
   useEffect(() => {
-    // console.log("loginmode", loginMode);
     storage.getItem<number>("expired_time").then(expiredTime => {
       const curr_timestamp = Date.now();
       if (expiredTime && curr_timestamp < expiredTime) {

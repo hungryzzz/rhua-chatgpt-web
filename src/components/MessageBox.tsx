@@ -1,17 +1,19 @@
-import {Avatar, Button, Dropdown, Spin, Tag, Tooltip, Typography} from "@douyinfe/semi-ui";
+import { Avatar, Button, Dropdown, Spin, Tag, Tooltip, Typography } from "@douyinfe/semi-ui";
 import {
   IconBulb,
   IconCopyStroked,
   IconDeleteStroked,
   IconEdit2Stroked,
   IconImage,
+  IconGridSquare,
   IconLink, IconStop,
-  IconTreeTriangleDown
+  IconTreeTriangleDown,
+  IconUploadError
 } from "@douyinfe/semi-icons";
 import React from "react";
-import {ChatMessage} from "../interface/message";
-import {MarkdownBox} from "./MarkdownBox";
-
+import { ChatMessage } from "../interface/message";
+import { MarkdownBox } from "./MarkdownBox";
+import { Image } from '@douyinfe/semi-ui';
 interface MessageBoxProps {
   message: ChatMessage;
   copyCommentChatItem: (messageId: string) => void;
@@ -24,7 +26,37 @@ const messageEqual = (prevProps: MessageBoxProps, currentProps: MessageBoxProps)
   return prevProps.message.completed === currentProps.message.completed
     && prevProps.message.content === currentProps.message.content;
 };
-
+/*
+const renderAddition = (type: string, content: string) => {
+  let childNode = <></>
+  if (type === "image") {
+       childNode = <Image
+       height={150}
+       src={content}
+       fallback={<IconUploadError style={{ fontSize: 150 }} />}
+     />
+    childNode = <a href={content} style={{ color: 'var(--semi-color-primary)' }}>{content}</a>
+  }
+    
+  if (type === "table") {
+    childNode = <a href={content} style={{ color: 'var(--semi-color-primary)' }}>{content}</a>
+  }
+  return childNode;
+}
+  */
+export function renderPrefixIcon(type: string) {
+  let prefixIcon = <></>
+  if (type === "image") {
+    prefixIcon = <IconImage />
+  }
+  if (type === "table") {
+    prefixIcon = <IconGridSquare />
+  }
+  if (type === "link") {
+    prefixIcon = <IconLink />
+  }
+  return prefixIcon;
+}
 export const UserMessageBox: React.FC<MessageBoxProps> = React.memo((
   {
     message,
@@ -73,7 +105,7 @@ export const UserMessageBox: React.FC<MessageBoxProps> = React.memo((
               theme="light"
               type="tertiary"
               className="comment-single-hidden-button"
-              icon={<IconTreeTriangleDown/>}
+              icon={<IconTreeTriangleDown />}
             />
           </Dropdown>
         </div>
@@ -83,17 +115,35 @@ export const UserMessageBox: React.FC<MessageBoxProps> = React.memo((
           <div className="comment-single-addition">
             {
               message.additions !== undefined && message.additions.length > 0 && (
-                message.additions.map((addition, index) => (
-                  <Tag
-                    style={{marginTop: 5}}
-                    key={message.id + "_" + index}
-                    size="large"
-                    color='light-blue'
-                    prefixIcon={addition.type === "image" ? <IconImage/> : <IconLink/>}
-                    shape='circle'
-                    children={addition.content}
-                  />
-                ))
+                message.additions.map((addition, index) => {
+                  const prefixIcon = renderPrefixIcon(addition.type);
+                  return addition.type === "image" ? (
+                    <img
+                      key={message.id + "_" + index}
+                      src={addition.content}
+                      alt="用户上传的图片"
+                      style={{
+                        maxWidth: "300px",
+                        maxHeight: "300px",
+                        width: "auto",
+                        height: "auto",
+                        objectFit: "contain",//等比例缩放图片，不会裁剪内容
+                        marginTop: "5px",
+                        display: "block",//让图片独占一行
+                      }}
+                    />
+                  ) : (
+                    <Tag
+                      style={{ marginTop: 5 }}
+                      key={message.id + "_" + index}
+                      size="large"
+                      color="light-blue"
+                      prefixIcon={prefixIcon}
+                    >
+                      {addition.content}
+                    </Tag>
+                  );
+                })
               )
             }
           </div>
@@ -124,7 +174,7 @@ export const UserMessageDocBox: React.FC<MessageBoxProps> = React.memo((
       <div className="comment-single-wrapper">
         <div className="comment-single-avatar">
           <Avatar
-            style={{backgroundColor: "var(--semi-color-info)"}}
+            style={{ backgroundColor: "var(--semi-color-info)" }}
             size="small"
             children={message.name}
           />
@@ -137,11 +187,11 @@ export const UserMessageDocBox: React.FC<MessageBoxProps> = React.memo((
               message.additions !== undefined && message.additions.length > 0 && (
                 message.additions.map((addition, index) => (
                   <Tag
-                    style={{marginTop: 5}}
+                    style={{ marginTop: 5 }}
                     key={message.id + "_" + index}
                     size="large"
                     color='light-blue'
-                    prefixIcon={addition.type === "image" ? <IconImage/> : <IconLink/>}
+                    prefixIcon={renderPrefixIcon(addition.type)}
                     shape='circle'
                     children={addition.content}
                   />
@@ -186,7 +236,7 @@ export const UserMessageDocBox: React.FC<MessageBoxProps> = React.memo((
               theme="light"
               type="tertiary"
               className="comment-single-hidden-button"
-              icon={<IconTreeTriangleDown/>}
+              icon={<IconTreeTriangleDown />}
             />
           </Dropdown>
         </div>
@@ -209,7 +259,7 @@ export const BotMessageBox: React.FC<MessageBoxProps> = React.memo((
       <div className="comment-single-wrapper">
         <div className="comment-single-avatar">
           <Avatar
-            style={{backgroundColor: 'var(--semi-color-primary)'}}
+            style={{ backgroundColor: 'var(--semi-color-primary)' }}
             size="small"
             contentMotion={message.completed != null && !message.completed}
             children={message.completed != null && !message.completed ? <IconStop /> : <IconBulb />}
@@ -219,7 +269,7 @@ export const BotMessageBox: React.FC<MessageBoxProps> = React.memo((
         <div className="comment-single-content">
           {
             !message.completed && message.content == "" ? (
-              <div className="comment-single-text"><Spin/></div>
+              <div className="comment-single-text"><Spin /></div>
             ) : (
               <div className="comment-single-text markdown-body">
                 <MarkdownBox content={message.content} />
@@ -239,20 +289,20 @@ export const BotMessageBox: React.FC<MessageBoxProps> = React.memo((
                 <Tooltip position="left" content="复制">
                   <Dropdown.Item
                     onClick={() => copyCommentChatItem(message.id)}
-                    children={<IconCopyStroked/>}
+                    children={<IconCopyStroked />}
                   />
                 </Tooltip>
                 <Tooltip position="left" content="修改">
                   <Dropdown.Item
                     onClick={() => updateCommentChatItem(message.id)}
-                    children={<IconEdit2Stroked/>}
+                    children={<IconEdit2Stroked />}
                   />
                 </Tooltip>
                 <Tooltip position="left" content="删除">
                   <Dropdown.Item
                     type="danger"
                     onClick={() => removeCommentChatItem(message.id)}
-                    children={<IconDeleteStroked/>}
+                    children={<IconDeleteStroked />}
                   />
                 </Tooltip>
               </Dropdown.Menu>
@@ -263,7 +313,7 @@ export const BotMessageBox: React.FC<MessageBoxProps> = React.memo((
               theme="light"
               type="tertiary"
               className="comment-single-hidden-button"
-              icon={<IconTreeTriangleDown/>}
+              icon={<IconTreeTriangleDown />}
             />
           </Dropdown>
         </div>
@@ -287,7 +337,7 @@ export const UserMessageShareBox: React.FC<MessageBoxShareProps> = React.memo((
     message
   }
 ) => {
-  const {Text} = Typography;
+  const { Text } = Typography;
   return (
     <div className="comment-single-box user">
       <div className="comment-single-wrapper">
@@ -301,11 +351,11 @@ export const UserMessageShareBox: React.FC<MessageBoxShareProps> = React.memo((
               message.additions !== undefined && message.additions.length > 0 && (
                 message.additions.map((addition, index) => (
                   <Tag
-                    style={{marginTop: 5}}
+                    style={{ marginTop: 5 }}
                     key={message.id + "_" + index}
                     size="large"
                     color='light-blue'
-                    prefixIcon={addition.type === "image" ? <IconImage/> : <IconLink/>}
+                    prefixIcon={renderPrefixIcon(addition.type)}
                     shape='circle'
                     children={addition.content}
                   />
@@ -316,7 +366,7 @@ export const UserMessageShareBox: React.FC<MessageBoxShareProps> = React.memo((
         </div>
         <div className="comment-single-avatar">
           <Avatar
-            style={{backgroundColor: "var(--semi-color-info)"}}
+            style={{ backgroundColor: "var(--semi-color-info)" }}
             size="small"
             children={message.name}
           />
@@ -331,13 +381,13 @@ export const UserMessageDocShareBox: React.FC<MessageBoxShareProps> = React.memo
     message
   }
 ) => {
-  const {Text} = Typography;
+  const { Text } = Typography;
   return (
     <div className="comment-single-box user-doc">
       <div className="comment-single-wrapper">
         <div className="comment-single-avatar">
           <Avatar
-            style={{backgroundColor: "var(--semi-color-info)"}}
+            style={{ backgroundColor: "var(--semi-color-info)" }}
             size="small"
             children={message.name}
           />
@@ -350,11 +400,11 @@ export const UserMessageDocShareBox: React.FC<MessageBoxShareProps> = React.memo
               message.additions !== undefined && message.additions.length > 0 && (
                 message.additions.map((addition, index) => (
                   <Tag
-                    style={{marginTop: 5}}
+                    style={{ marginTop: 5 }}
                     key={message.id + "_" + index}
                     size="large"
                     color='light-blue'
-                    prefixIcon={addition.type === "image" ? <IconImage/> : <IconLink/>}
+                    prefixIcon={renderPrefixIcon(addition.type)}
                     shape='circle'
                     children={addition.content}
                   />
@@ -380,9 +430,9 @@ export const BotMessageShareBox: React.FC<MessageBoxShareProps> = React.memo((
       <div className="comment-single-wrapper">
         <div className="comment-single-avatar">
           <Avatar
-            style={{backgroundColor: 'var(--semi-color-primary)'}}
+            style={{ backgroundColor: 'var(--semi-color-primary)' }}
             size="small"
-            children={<IconBulb/>}
+            children={<IconBulb />}
           />
         </div>
         <div className="comment-single-content">

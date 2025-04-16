@@ -17,7 +17,7 @@ export interface ChatMessageAddition {
 
     type: string;
 
-    content: string;
+    content: any;
 }
 
 export interface ChatSession {

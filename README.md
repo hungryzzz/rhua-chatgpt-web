@@ -89,3 +89,4 @@ return JSON.stringify(json.data);
 ## 开发计划
 
 先开源，待定中。。。
+1. 上传图片后消息框显示的太长

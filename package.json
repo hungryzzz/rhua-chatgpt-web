@@ -37,6 +37,7 @@
     "remark-gfm": "^4.0.0",
     "remark-math": "^6.0.0",
     "styled-components": "^6.1.11",
+    "xlsx": "^0.18.5",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -45,6 +46,7 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.0",
     "sass": "^1.77.2",
+    "terser": "^5.37.0",
     "typescript": "^5.4.5",
     "vite": "^5.2.11"
   },

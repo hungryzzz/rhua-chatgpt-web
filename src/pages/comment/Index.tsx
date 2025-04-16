@@ -8,38 +8,43 @@ import {
   Select,
   TagGroup,
   TextArea,
-  Toast, Tooltip, Typography,
+  Toast, Tooltip, Typography, Upload
 } from "@douyinfe/semi-ui";
 import {
   IconHourglassStroked,
-  IconImage, IconLink,
+  IconLink, IconGlobeStroke,
   IconPlusCircleStroked,
-  IconSend, IconStarStroked, IconUserCircleStroked,
+  IconSend,
 } from "@douyinfe/semi-icons";
-import React, {createRef, useCallback, useEffect, useRef, useState} from "react";
-import {LocalForageService as storage} from "../../utils/storage";
+import React, { createRef, useCallback, useEffect, useRef, useState } from "react";
+import { LocalForageService as storage } from "../../utils/storage";
 import PluginExecutor from "../../utils/plugin-executor";
-import {nanoid} from "ai";
-import {BaseCallbackHandler} from "@langchain/core/callbacks/base";
+import { nanoid } from "ai";
+import { BaseCallbackHandler } from "@langchain/core/callbacks/base";
 import {
   IllustrationNoContent, IllustrationNoContentDark
 } from "@douyinfe/semi-illustrations";
-import {useNavigate} from "react-router-dom";
-import {TagProps} from "@douyinfe/semi-ui/lib/es/tag/interface";
-import {ChatMessage, ChatMessageAddition, ChatSession} from "../../interface/message";
-import {OptionProps} from "@douyinfe/semi-ui/lib/es/select";
-import {Role} from "../../interface/role";
-import {MessageUtil} from "../../utils/message-util";
-import {BotMessageBox, UserMessageBox, UserMessageDocBox} from "../../components/MessageBox";
-import {SessionBox} from "../../components/SessionBox";
-import {CommentHeader} from "../../components/CommentHeader";
-import {OpenAIAttribute} from "../../interface/llm";
-import {SessionSetting} from "../../interface/setting";
-import {initialOpenaiAttribute, initialSessionSetting} from "../../utils/initial-state";
-import {MessageShare} from "../../components/MessageShare";
-import {CommonUtil} from "../../utils/common-util";
+import { useNavigate } from "react-router-dom";
+// import { TagProps } from "@douyinfe/semi-ui/lib/es/tag/interface";
+import { AdditionProps } from "../../interface/addition";
+import { ChatMessage, ChatMessageAddition, ChatSession } from "../../interface/message";
+import { OptionProps } from "@douyinfe/semi-ui/lib/es/select";
+import { Role } from "../../interface/role";
+import { MessageUtil } from "../../utils/message-util";
+import { BotMessageBox, UserMessageBox, UserMessageDocBox } from "../../components/MessageBox";
+import { SessionBox } from "../../components/SessionBox";
+import { CommentHeader } from "../../components/CommentHeader";
+import { OpenAIAttribute } from "../../interface/llm";
+import { SessionSetting } from "../../interface/setting";
+import { initialOpenaiAttribute, initialSessionSetting } from "../../utils/initial-state";
+import { MessageShare } from "../../components/MessageShare";
+// import { CommonUtil } from "../../utils/common-util";
 import mermaid from "mermaid";
-import {IconRating, IconSpin} from "@douyinfe/semi-icons-lab";
+// import { IconRating, IconSpin } from "@douyinfe/semi-icons-lab";
+import { uploadFile } from "./service";
+import * as XLSX from 'xlsx';
+import {renderPrefixIcon} from "../../components/MessageBox"
+import { set } from "zod";
 
 function CommentIndex() {
   const [themeMode, setThemeMode] = useState<'light' | 'dark'>('dark');
@@ -50,24 +55,29 @@ function CommentIndex() {
   const [roleOptionProps, setRoleOptionProps] = useState<OptionProps[]>([]);
   const [sessionSidebar, setSessionSidebar] = useState<boolean>(true);
   const [showTitleSpin, setShowTitleSpin] = useState<boolean>(false);
-  const [openaiAttribute, setOpenaiAttribute] = useState<OpenAIAttribute>({...initialOpenaiAttribute, apiKey: 'init'});
+  const [openaiAttribute, setOpenaiAttribute] = useState<OpenAIAttribute>({ ...initialOpenaiAttribute, apiKey: 'init' });
   const [sessionSetting, setSessionSetting] = useState<SessionSetting>(initialSessionSetting);
   const [showMessageShare, setShowMessageShare] = useState<boolean>(false);
   const [shareMessageList, setShareMessageList] = useState<ChatMessage[]>([]);
 
   const [sendAdditionType, setSendAdditionType] = useState<string>("");
   const [sendAdditionContent, setSendAdditionContent] = useState<string>("");
-  const [sendAdditionList, setSendAdditionList] = useState<TagProps[]>([]);
+  const additionContentToBackend = useRef<any>({});
+  const [uploadState,setUploadState] = useState<boolean>(false);
+  const [sendAdditionList, setSendAdditionList] = useState<AdditionProps[]>([]);
+  const uploadTip="支持上传小于1M的图片、表格"
   const sendAddition = (type: string) => {
+
     setSendAdditionType(type);
   }
   const sendAdditionSubmit = () => {
-    const addition: TagProps = {
+    const addition: AdditionProps = {
       tagKey: sendAdditionType + "_" + nanoid(),
       children: sendAdditionContent,
+      uploadFile: additionContentToBackend.current,
       closable: true,
       color: 'light-blue',
-      prefixIcon: sendAdditionType === 'image' ? <IconImage /> : <IconLink />
+      prefixIcon: renderPrefixIcon(sendAdditionType)
     };
     setSendAdditionList(prevState => ([...prevState, addition]));
     setSendAdditionType("");
@@ -82,7 +92,7 @@ function CommentIndex() {
       return newList.filter(addition => addition.tagKey !== tagKey);
     });
   }
-  const sendAdditionContentChange = (content: string) => {
+  const sendAdditionContentChange = (content: any) => {
     setSendAdditionContent(content);
   };
 
@@ -141,7 +151,7 @@ function CommentIndex() {
         const currentSession = newSessionList[sessionFindIndex];
         setCurrentCommentSession({
           ...currentSession,
-          config: {...currentSession.config}
+          config: { ...currentSession.config }
         });
         storage.getItem<ChatMessage[]>("chat_list_" + newSessionId).then(chatList => {
           setCommentChatList(() => chatList || []);
@@ -242,7 +252,7 @@ function CommentIndex() {
     return newModel;
   }
 
-  const chatSubmit = () => {
+  const chatSubmit = async () => {
     const lastUserChatContent = userChatContent;
     if (lastUserChatContent == "") {
       return;
@@ -251,12 +261,15 @@ function CommentIndex() {
     const additions: ChatMessageAddition[] = [];
     if (sendAdditionList.length > 0) {
       for (const tagProp of sendAdditionList) {
+        setUploadState(true);
+        const file_url = await uploadFile(tagProp.uploadFile)
+        setUploadState(false);
         if (typeof tagProp.tagKey === 'string') {
           const keys = tagProp.tagKey.split("_")
           if (keys.length == 2) {
             additions.push({
               type: keys[0],
-              content: tagProp.children as string
+              content: file_url
             });
           }
         }
@@ -279,7 +292,6 @@ function CommentIndex() {
       ];
       return newState;
     });
-
     setUserChatContent("");
     setSendAdditionList([]);
     sendInputRef.current?.focus();
@@ -361,7 +373,8 @@ function CommentIndex() {
               const newChatList = [...chatList];
               const newChat = {
                 ...newChatList[findIndex],
-                completed: true
+                completed: true,
+                content: botChatContent
               };
               newChatList[findIndex] = newChat;
 
@@ -714,7 +727,7 @@ function CommentIndex() {
     setCommentChatList(chatList => {
       const chat = chatList.find(chat => chat.id === chatId);
       if (chat) {
-        const newChat = {...chat, additions: [...chat.additions ?? []]};
+        const newChat = { ...chat, additions: [...chat.additions ?? []] };
         chatFormRef.current?.formApi.setValues(newChat);
         setChatToUpdate(newChat);
         setUpdateChatVisible(true);
@@ -727,7 +740,7 @@ function CommentIndex() {
     if (Object.keys(field).length > 1) {
       return;
     }
-    const newChat = {...chat, additions: [...chat.additions ?? []]};
+    const newChat = { ...chat, additions: [...chat.additions ?? []] };
     setChatToUpdate(newChat);
   }
 
@@ -817,6 +830,67 @@ function CommentIndex() {
     setShareMessageList([]);
     setShowMessageShare(false);
   }, []);
+  const setAdditionOnFrontEnd = (detail: any) => {
+    const reader = new FileReader();
+    if (detail.fileInstance.type.includes('image')) {
+      setSendAdditionType('image');
+      reader.readAsDataURL(detail.fileInstance);
+      reader.onload = function () {
+        sendAdditionContentChange(reader.result as string);
+      };
+    }
+    if (detail.fileInstance.type.includes('sheet')) {
+      setSendAdditionType('table');
+      reader.onload = (e) => {
+        if (e.target) {
+          const binaryStr = e.target.result;
+          const workbook = XLSX.read(binaryStr, { type: 'binary' }); // 解析CSV文件
+          const sheetName = workbook.SheetNames[0];  // 获取第一个工作表
+          sendAdditionContentChange(sheetName);
+        };
+      }
+      reader.readAsArrayBuffer(detail.fileInstance);
+    }
+  }
+
+  const uploadProps = {
+    maxSize:1024,
+    accept: 'image/*, .csv, .xls, .xlsx',
+    limit:1,
+    customRequest: async (detail: any) => {
+      try {
+        if (detail.file) {
+          setAdditionOnFrontEnd(detail);
+          const formData = new FormData();
+          formData.append('file', detail.fileInstance);
+          additionContentToBackend.current = formData.get('file');
+          detail.onSuccess();
+        }
+      }
+      catch (error) {
+        console.log(error, 'upload photo error');
+        Toast.error({
+          content: '上传失败',
+          duration: 3,
+        });
+      }
+    },
+  }
+  const renderAdditions = (additions: AdditionProps[]) => {
+    const tagList: AdditionProps[] = [];
+    additions.forEach((addition) => {
+      if (typeof addition.tagKey === 'string') {
+        const key = addition.tagKey.split("_")[0];
+        if (key === 'image') {
+          const newAddition = { ...addition, children: <div>{addition.uploadFile.name}</div> };
+          tagList.push(newAddition);
+        } else {
+          tagList.push(addition);
+        }
+      }
+    });
+    return tagList;
+  }
 
   return (
     <Layout className="full-height">
@@ -891,11 +965,11 @@ function CommentIndex() {
               })
             ) : (
               <Empty
-                image={<IllustrationNoContent/>}
-                darkModeImage={<IllustrationNoContentDark/>}
+                image={<IllustrationNoContent />}
+                darkModeImage={<IllustrationNoContentDark />}
                 title="你好啊"
                 description="今天需要我做些什么呢？"
-                style={{position: "absolute", top: "33%", left: "50%", transform: "translate(-50%, -33%)"}}
+                style={{ position: "absolute", top: "33%", left: "50%", transform: "translate(-50%, -33%)" }}
               />
             )
           }
@@ -910,7 +984,7 @@ function CommentIndex() {
               <Form.TextArea
                 field="content"
                 label="内容"
-                autosize={{ minRows: 3, maxRows: 8}}
+                autosize={{ minRows: 3, maxRows: 8 }}
               />
             </Form>
           </Modal>
@@ -934,7 +1008,7 @@ function CommentIndex() {
                       display: 'flex',
                       alignItems: 'center'
                     }}
-                    tagList={sendAdditionList}
+                    tagList={renderAdditions(sendAdditionList)}
                     size='large'
                     onTagClose={sendAdditionRemove}
                   />
@@ -944,7 +1018,7 @@ function CommentIndex() {
                 className="comment-send-input"
                 placeholder="Enter发送，Shift + Enter换行。"
                 value={userChatContent}
-                autosize={{minRows: 1, maxRows: 8}}
+                autosize={{ minRows: 1, maxRows: 8 }}
                 onChange={(value) => changeUserChatContent(value)}
                 onEnterPress={chatEnterPress}
                 ref={sendInputRef}
@@ -957,19 +1031,20 @@ function CommentIndex() {
                   render={
                     <Dropdown.Menu>
                       <Dropdown.Item
-                        icon={<IconImage />}
-                        children="图片链接"
-                        onClick={() => sendAddition('image')}
-                      />
-                      <Dropdown.Item
                         icon={<IconLink />}
+                        children="上传附件"
+                        onClick={() => sendAddition('file')}
+                      />
+                      {/* <Dropdown.Item
+
+                        icon={<IconGlobeStroke />}
                         children="网页地址"
                         onClick={() => sendAddition('link')}
-                      />
+                      /> */}
                     </Dropdown.Menu>
                   }
                 >
-                  <span style={{display: 'inline-block'}}>
+                  <span style={{ display: 'inline-block' }}>
                     <Tooltip content={'附加消息'}>
                       <Button
                         theme="borderless"
@@ -980,14 +1055,14 @@ function CommentIndex() {
                     </Tooltip>
                   </span>
                 </Dropdown>
-                <Divider layout="vertical" margin='6px'/>
+                <Divider layout="vertical" margin='6px' />
                 <Tooltip content={'发送'}>
                   <Button
                     theme="borderless"
                     type="primary"
-                    icon={<IconSend/>}
+                    icon={<IconSend />}
                     aria-label="发送"
-                    disabled={userChatContent === ""}
+                    disabled={userChatContent === ""||uploadState}
                     onClick={chatSubmit}
                   />
                 </Tooltip>
@@ -1046,14 +1121,19 @@ function CommentIndex() {
             onOk={sendAdditionSubmit}
             onCancel={sendAdditionClose}
             centered
-          >
-            <Input
-              value={sendAdditionContent}
-              onChange={(content) => sendAdditionContentChange(content)}
-              prefix={sendAdditionType === 'image' ? <IconImage /> : <IconLink />}
-              showClear
-              placeholder={sendAdditionType === 'image' ? "请填写图片的链接地址" : "请填写网页地址"}
-            />
+          >{sendAdditionType === "link" ? <Input
+            value={sendAdditionContent}
+            onChange={(content) => sendAdditionContentChange(content)}
+            prefix={renderPrefixIcon(sendAdditionType)}
+            // prefix={sendAdditionType === 'file' ?  <IconLink />:<IconGlobeStroke />}
+            showClear
+            placeholder={"请填写网页地址"}
+          // placeholder={sendAdditionType === 'file' ? "请上传附件" : "请填写网页地址"}
+          /> : <Upload {...uploadProps}>
+            <Button theme="light">
+              {uploadTip}
+            </Button>
+          </Upload>}
           </Modal>
         </Footer>
       </Layout>
